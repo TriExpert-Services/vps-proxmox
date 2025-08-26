@@ -1040,7 +1040,7 @@ export default function SetupWizard() {
         <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6">
             <div className="flex items-center space-x-3">
-              <steps[currentStep - 1].icon className="h-8 w-8 text-white" />
+              {React.createElement(steps[currentStep - 1].icon, { className: "h-8 w-8 text-white" })}
               <h2 className="text-2xl font-bold text-white">{steps[currentStep - 1].title}</h2>
             </div>
           </div>
