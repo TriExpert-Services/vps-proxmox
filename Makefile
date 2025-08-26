@@ -12,7 +12,7 @@ COMPOSE_FILE_DEV = docker-compose.dev.yml
 help: ## Show this help message
 	@echo "CloudVPS Pro - Docker Commands"
 	@echo "==============================="
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$\' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 build: ## Build Docker images
 	@echo "Building Docker images..."
@@ -117,7 +117,7 @@ update: ## Update application (pull, build, restart)
 
 ssl: ## Generate SSL certificates (requires certbot)
 	@echo "Generating SSL certificates..."
-	@read -p "Enter your domain name: " domain; \
+	@read -p "Enter your domain name: \" domain; \
 	sudo certbot certonly --standalone -d $$domain; \
 	sudo cp /etc/letsencrypt/live/$$domain/fullchain.pem docker/nginx/ssl/; \
 	sudo cp /etc/letsencrypt/live/$$domain/privkey.pem docker/nginx/ssl/; \
