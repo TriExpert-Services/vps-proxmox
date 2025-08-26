@@ -1,0 +1,47 @@
+# Development Docker Compose Configuration
+version: '3.8'
+
+services:
+  postgres:
+    environment:
+      POSTGRES_DB: cloudvps_dev
+      POSTGRES_USER: cloudvps
+      POSTGRES_PASSWORD: dev_password
+    ports:
+      - "5433:5432"
+
+  redis:
+    command: redis-server --requirepass dev_password
+    ports:
+      - "6380:6379"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: cloudvps_dev
+      DB_USERNAME: cloudvps
+      DB_PASSWORD: dev_password
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: dev_password
+      JWT_SECRET: dev-jwt-secret
+      VITE_API_BASE_URL: http://localhost:3000/api/v1
+    ports:
+      - "3000:3000"
+      - "5173:5173"  # Vite dev server
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - app_logs:/app/logs
+    command: npm run dev
+
+  nginx:
+    volumes:
+      - ./docker/nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"

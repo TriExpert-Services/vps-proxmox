@@ -1,0 +1,25 @@
+# Development Dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install dependencies
+RUN apk add --no-cache git
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Create logs directory
+RUN mkdir -p /app/logs
+
+# Expose ports (app + vite)
+EXPOSE 3000 5173
+
+# Start development server
+CMD ["npm", "run", "dev"]
