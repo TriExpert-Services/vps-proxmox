@@ -70,7 +70,7 @@ services:
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
       FROM_EMAIL: ${FROM_EMAIL:-noreply@yourdomain.com}
     ports:
-      - "3000:3000"
+      - "4000:4000"
     depends_on:
       postgres:
         condition: service_healthy
