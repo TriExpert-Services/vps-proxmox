@@ -35,7 +35,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/package*.json ./
 
 # Copy necessary files
-COPY --chown=nextjs:nodejs scripts ./scripts
+#COPY --chown=nextjs:nodejs scripts ./scripts
 COPY --chown=nextjs:nodejs docs ./docs
 
 # Create logs directory
