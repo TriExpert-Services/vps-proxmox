@@ -30,7 +30,7 @@ RUN npm ci --omit=dev && npm cache clean --force || true
 COPY --from=builder /app/dist ./dist
 
 USER nextjs
-EXPOSE 3000
+EXPOSE 4000
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
 # Ajusta este comando a cómo sirves tu app:
