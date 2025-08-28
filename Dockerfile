@@ -1,58 +1,40 @@
-# Multi-stage build for CloudVPS Pro
-FROM node:18-alpine AS builder
+# ====== Builder ======
+FROM node:20-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
+# 1) Instala TODAS las dependencias (incluye dev) para poder ejecutar vite build
 COPY package*.json ./
+RUN npm ci
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
-
-# Copy source code
+# 2) Copia el código y construye
 COPY . .
-
-# Build the application
 RUN npm run build
 
-# Production image
-FROM node:18-alpine AS production
+# ====== Production (Node runtime) ======
+# Si tu app es SSR o necesitas Node para servir (por ejemplo, Express):
+FROM node:20-alpine AS production
 
-# Install dumb-init for proper signal handling
+# Opcional pero útil
 RUN apk add --no-cache dumb-init
 
-# Create app user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
-
-# Set working directory
+# Usuario no-root
+RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
 WORKDIR /app
 
-# Copy built application from builder stage
-COPY --from=builder --chown=nextjs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/package*.json ./
+# 3) Instala SOLO deps de producción
+COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force || true
 
-# Copy necessary files
-#COPY --chown=nextjs:nodejs scripts ./scripts
-COPY --chown=nextjs:nodejs docs ./docs
+# 4) Copia artefactos del build
+COPY --from=builder /app/dist ./dist
 
-# Create logs directory
-RUN mkdir -p /app/logs && chown nextjs:nodejs /app/logs
-
-# Switch to non-root user
 USER nextjs
-
-# Expose port
 EXPOSE 3000
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node healthcheck.js
-
-# Use dumb-init to handle signals properly
-ENTRYPOINT ["dumb-init", "--"]
-
-# Start the application
+# Ajusta este comando a cómo sirves tu app:
+# - Si es SSR:   "node dist/server.js"
+# - Si es SPA:   cambia a la variante NGINX de abajo
 CMD ["node", "dist/server.js"]
+
